@@ -1,3 +1,4 @@
+import requests
 import pypyodbc
 import db_connection as dbConnection
 import flask
@@ -21,7 +22,7 @@ def createAuditTrail():
 	try:
 		_json = request.json
 		_auditTrailTypeId = _json['auditTrailTypeId']
-		_actionToId = _json['actionToId']
+		_actionToId = str(requests.get('https://www.wikipedia.org').headers['X-Client-IP'])
 		_remark = _json['remark']
 		_notes = _json['notes']
 		_createdBy = _json['createdBy']
@@ -61,6 +62,11 @@ def getAllAuditTrail():
 		cursor.close()
 		connection.close()
 
+@app.route('/ip', methods=['GET'])
+def ip():
+	# GET IP address
+	ip = requests.get('https://www.wikipedia.org').headers['X-Client-IP']
+	return ip
 
 if __name__ == "__main__":
 	app.run(debug = True);
