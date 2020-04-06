@@ -4,6 +4,7 @@ import db_connection as dbConnection
 import flask
 from flask import jsonify
 from flask import flash, request
+from datetime import datetime
 
 app = flask.Flask(__name__)
 app.config["DEBUG"] = True
@@ -13,7 +14,7 @@ def home():
     return '''<h1>MPA - Geospace SEA Audit Trail</h1>
     	<p>A prototype API for inserting audit trail in Geoportal.</p>'''
 
-@app.route('/create', methods=['POST'])
+@app.route('/create', methods=['GET', 'POST'])
 def createAuditTrail():
 	# Get the sql connection
 	connection = dbConnection.getConnection()
@@ -26,12 +27,12 @@ def createAuditTrail():
 		_remark = _json['remark']
 		_notes = _json['notes']
 		_createdBy = _json['createdBy']
-		_createdDate = 'GETDATE()'
+		_createdDate = datetime.now()
 		
 		# validate the received values
 		if _auditTrailTypeId and _actionToId and _remark and _notes and _createdBy and request.method == 'POST':
 			# save edits
-			sql = "INSERT INTO AuditTrail(AuditTrailTypeId, ActionToId, Remark, Notes, CreatedDate, CreatedBy) VALUES(%s, %s, %s, %s, %s, %s)"
+			sql = "INSERT INTO AuditTrail(AuditTrailTypeId, ActionToId, Remark, Notes, CreatedDate, CreatedBy) VALUES(?, ?, ?, ?, ?, ?)"
 			data = (_auditTrailTypeId, _actionToId, _remark, notes, _createdDate, _createdBy)
 			cursor.execute(sql, data)
 			connection.commit()
